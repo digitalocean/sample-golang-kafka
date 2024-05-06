@@ -7,16 +7,36 @@ We provide a sample app that produces and consumes messages to/from Kafka using 
 ### Requirements
 
 * You need a DigitalOcean account. If you don't already have one, you can sign up at https://cloud.digitalocean.com/registrations/new.
-* You need a running Kafka instance. If you don't already have one, you can create one at https://cloud.digitalocean.com/databases.
+* You need a running Kafka instance. If you don't already have one, you can create one at https://cloud.digitalocean.com/databases. Also, make sure to create a topic in the "Topics & Users" tab.
 
 ## Deploying the App
+
+[![Deploy to DigitalOcean](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/digitalocean/sample-golang-kafka/tree/main)
+
+1. Click "Add Resource (Optional)", select "Database", click "Add"
+2. Select "Previously Created DigitalOcean Database"
+3. Select your kafka cluster under "Database Cluster", click "Attach Database", and click "Next"
+4. In the "Environment Variables" step, click on "Edit" next to "Global", click on "Bulk Edit", and add the following environment variables. Make sure to replace `your-kafka-instance-name` with the name of your kafka cluster, and change the `KAFKA_TOPIC` environment variable to the topic you created.
+```
+KAFKA_BROKER=${your-kafka-instance-name.HOSTNAME}:${your-kafka-instance-name.PORT}
+KAFKA_USERNAME=${your-kafka-instance-name.USERNAME}
+KAFKA_PASSWORD=${your-kafka-instance-name.PASSWORD}
+KAFKA_CA_CERT=${your-kafka-instance-name.CA_CERT}
+KAFKA_TOPIC=set this to the kafka topic you created
+```
+5. Click "Save", click "Next"
+6. Click "Next" on the "Info" step
+7. Review the information presented in the "Review" step and click "Create Resources"
+
+## Deploying the App using doctl
 
 [Fork](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo) this GitHub repository to your account so that you have a copy of it stored to the cloud. Click the **Fork** button in the GitHub repository and follow the on-screen instructions.
 
 After forking the repo, you should now be viewing this README in your own GitHub org (e.g. `https://github.com/<your-org>/sample-golang-kafka`). To deploy the new repo, make a couple of changes to the `.do/app.yaml` file.
 
-1. Update the environment variables under `envs` -> `value` to point to your Kafka instance.
-2. Set your repo path under `services` -> `github` -> `repo`.
+1. Search and replace `mykafka` to your kafka instance name.
+2. Update the value of the environment variable `KAFKA_TOPIC` under `envs` to the kafka topic where you want to publish to and consume from.
+3. Set `services` -> `github` -> `repo` to your forked repository.
 
 Once the above changes are made, run `doctl apps create --spec .do/app.yaml`.
 

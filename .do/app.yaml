@@ -1,26 +1,31 @@
-name: sample-golang-kafka
+name: sample-golang-kafka-2
 envs:
   - scope: RUN_TIME
     type: GENERAL
     key: KAFKA_BROKER
-    value: TODO
+    value: ${mykafka.HOSTNAME}:${mykafka.PORT}
   - scope: RUN_TIME
     type: GENERAL
     key: KAFKA_TOPIC
-    value: TODO
+    value: sample-topic
   - scope: RUN_TIME
     type: GENERAL
     key: KAFKA_USERNAME
-    value: TODO
+    value: ${mykafka.USERNAME}
   - scope: RUN_TIME
     type: GENERAL
     key: KAFKA_PASSWORD
-    value: TODO
+    value: ${mykafka.PASSWORD}
   - scope: RUN_TIME
     type: GENERAL
     key: KAFKA_CA_CERT
-    value: |
-      TODO
+    value: ${mykafka.CA_CERT}
+databases:
+  - cluster_name: mykafka
+    db_user: doadmin
+    engine: KAFKA
+    name: mykafka
+    production: true
 services:
   - name: producer
     source_dir: producer
