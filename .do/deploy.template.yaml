@@ -4,24 +4,23 @@ spec:
     - scope: RUN_TIME
       type: GENERAL
       key: KAFKA_BROKER
-      value: TODO
+      value: "${kafkatest2.HOSTNAME}:${kafkatest2.PORT}"
     - scope: RUN_TIME
       type: GENERAL
       key: KAFKA_TOPIC
-      value: TODO
+      value: sample-topic
     - scope: RUN_TIME
       type: GENERAL
       key: KAFKA_USERNAME
-      value: TODO
+      value: "${kafkatest2.USERNAME}"
     - scope: RUN_TIME
       type: GENERAL
       key: KAFKA_PASSWORD
-      value: TODO
+      value: "${kafkatest2.PASSWORD}"
     - scope: RUN_TIME
       type: GENERAL
       key: KAFKA_CA_CERT
-      value: |
-        TODO
+      value: "${kafkatest2.CA_CERT}"
   services:
     - name: producer
       source_dir: producer
