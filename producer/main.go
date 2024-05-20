@@ -3,6 +3,8 @@ package main
 import (
 	"crypto/tls"
 	"crypto/x509"
+	_ "embed"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
@@ -19,6 +21,9 @@ func logRequest(r *http.Request) {
 	method := r.Method
 	log.Println("Got request!", method, uri)
 }
+
+//go:embed index.html
+var indexHTML string
 
 func main() {
 	broker := os.Getenv("KAFKA_BROKER")
@@ -52,6 +57,9 @@ func main() {
 	}
 	defer producer.Close()
 
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, indexHTML)
+	})
 	http.HandleFunc("/produce", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
@@ -60,7 +68,7 @@ func main() {
 		logRequest(r)
 		reqBody, err := io.ReadAll(r.Body)
 		if err != nil {
-			fmt.Fprint(w, err)
+			http.Error(w, "Invalid request body: "+err.Error(), http.StatusBadRequest)
 			return
 		}
 		var kafkaMsgValue sarama.Encoder = sarama.ByteEncoder(reqBody)
@@ -74,10 +82,14 @@ func main() {
 		defer r.Body.Close()
 		partition, offset, err := producer.SendMessage(msg)
 		if err != nil {
-			fmt.Fprint(w, err)
+			http.Error(w, "Error producing message: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		fmt.Fprintf(w, "Message produced in topic(%s)/partition(%d)/offset(%d)\n", topic, partition, offset)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"topic":     topic,
+			"partition": partition,
+			"offset":    offset,
+		})
 	})
 
 	port := os.Getenv("PORT")

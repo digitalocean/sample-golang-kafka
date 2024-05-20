@@ -24,6 +24,9 @@ func main() {
 	config := sarama.NewConfig()
 	config.Metadata.Full = true
 	config.ClientID = "sample-consumer-client"
+	if consumerGroup := os.Getenv("KAFKA_CONSUMER_GROUP"); consumerGroup != "" {
+		config.ClientID = consumerGroup
+	}
 	config.Producer.Return.Successes = true
 
 	config.Net.SASL.Enable = true
